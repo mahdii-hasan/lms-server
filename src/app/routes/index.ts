@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { UserRoutes } from "../modules/user/user.route";
 
 const router = Router();
 
@@ -8,5 +9,8 @@ router.get("/", (req, res) => {
         message: "Welcome to the LMS API"
     })
 })
+
+
+router.use("/users", UserRoutes);
 
 export default router;

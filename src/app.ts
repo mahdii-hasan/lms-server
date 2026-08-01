@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import router from "./app/routes";
-import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 
 const app = express();
 

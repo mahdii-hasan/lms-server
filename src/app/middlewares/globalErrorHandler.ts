@@ -1,11 +1,10 @@
 import { ErrorRequestHandler } from "express";
 import mongoose from "mongoose";
 import httpStatus from "http-status";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+// import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { ZodError } from "zod";
 
 import env from "../config/env";
-import AppError from "../errors/AppError";
 
 import handleValidationError from "../errors/handleValidationError";
 import handleDuplicateError from "../errors/handleDuplicateError";
@@ -15,12 +14,11 @@ import handleJWTError from "../errors/handleJWTError";
 import handleJWTExpiredError from "../errors/handleJWTExpiredError";
 
 import { TErrorSource } from "../interfaces/error";
+import AppError from "../errors/AppError";
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
-
   let message: string = "Something went wrong!";
-
   let errorSources: TErrorSource[] = [];
 
   // App Error
@@ -65,23 +63,23 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     errorSources = simplifiedError.errorSources;
   }
 
-  // JWT Expired Error
-  else if (err instanceof TokenExpiredError) {
-    const simplifiedError = handleJWTExpiredError(err);
+  // // JWT Expired Error
+  // else if (err instanceof TokenExpiredError) {
+  //   const simplifiedError = handleJWTExpiredError(err);
 
-    statusCode = simplifiedError.statusCode;
-    message = simplifiedError.message;
-    errorSources = simplifiedError.errorSources;
-  }
+  //   statusCode = simplifiedError.statusCode;
+  //   message = simplifiedError.message;
+  //   errorSources = simplifiedError.errorSources;
+  // }
 
-  // JWT Error
-  else if (err instanceof JsonWebTokenError) {
-    const simplifiedError = handleJWTError(err);
+  // // JWT Error
+  // else if (err instanceof JsonWebTokenError) {
+  //   const simplifiedError = handleJWTError(err);
 
-    statusCode = simplifiedError.statusCode;
-    message = simplifiedError.message;
-    errorSources = simplifiedError.errorSources;
-  }
+  //   statusCode = simplifiedError.statusCode;
+  //   message = simplifiedError.message;
+  //   errorSources = simplifiedError.errorSources;
+  // }
 
   // Normal JavaScript Error
   else if (err instanceof Error) {

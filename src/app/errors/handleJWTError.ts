@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { JsonWebTokenError } from "jsonwebtoken";
+import {JsonWebTokenError} from "jsonwebtoken"
 
 import { TErrorSource, TGenericErrorResponse } from "../interfaces/error";
 import { ERROR_MESSAGES } from "../constants/messages";

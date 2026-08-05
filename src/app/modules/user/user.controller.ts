@@ -1,16 +1,17 @@
 import { Request, Response } from "express";
-import { UserServices } from "./user.service";
+import sendResponse from "../../utils/sendResponse";
+import httpStatus from "http-status";
+import { SUCCESS_MESSAGES } from "../../constants/messages";
 
-const createUser = async (req: Request, res: Response) => {
-  const result = await UserServices.createUser(req.body);
-
-  res.status(201).json({
+const getMe = async (req: Request, res: Response) => {
+  sendResponse(res, {
     success: true,
-    message: "User created successfully",
-    data: result,
+    statusCode: httpStatus.OK,
+    message: SUCCESS_MESSAGES.PROFILE_RETRIEVED,
+    data: req.user,
   });
 };
 
 export const UserControllers = {
-  createUser,
+  getMe,
 };

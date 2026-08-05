@@ -1,7 +1,7 @@
 import { ErrorRequestHandler } from "express";
 import mongoose from "mongoose";
 import httpStatus from "http-status";
-// import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { ZodError } from "zod";
 
 import env from "../config/env";
@@ -64,22 +64,22 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   }
 
   // // JWT Expired Error
-  // else if (err instanceof TokenExpiredError) {
-  //   const simplifiedError = handleJWTExpiredError(err);
+  else if (err instanceof TokenExpiredError) {
+    const simplifiedError = handleJWTExpiredError(err);
 
-  //   statusCode = simplifiedError.statusCode;
-  //   message = simplifiedError.message;
-  //   errorSources = simplifiedError.errorSources;
-  // }
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  }
 
   // // JWT Error
-  // else if (err instanceof JsonWebTokenError) {
-  //   const simplifiedError = handleJWTError(err);
+  else if (err instanceof JsonWebTokenError) {
+    const simplifiedError = handleJWTError(err);
 
-  //   statusCode = simplifiedError.statusCode;
-  //   message = simplifiedError.message;
-  //   errorSources = simplifiedError.errorSources;
-  // }
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  }
 
   // Normal JavaScript Error
   else if (err instanceof Error) {

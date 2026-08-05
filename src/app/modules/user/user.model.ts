@@ -3,12 +3,12 @@ import { Schema, model } from "mongoose";
 
 import env from "../../config/env";
 
-import { IUser, UserModel } from "./user.interface";
+import { IUser, IUserMethods, UserModel } from "./user.interface";
 
 import { USER_ROLE } from "../../constants/user_role";
 import { USER_STATUS } from "../../constants/user_status";
 
-const userSchema = new Schema<IUser, UserModel>(
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: {
       type: String,
@@ -59,22 +59,26 @@ const userSchema = new Schema<IUser, UserModel>(
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
-  this.password = await bcrypt.hash(this.password,Number(env.bcrypt_salt_rounds),
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(env.bcrypt_salt_rounds),
   );
 });
 
 /**
- * Find user by email
+ * Static Method
  */
 userSchema.static("isUserExistsByEmail", function (email: string) {
-  return this.findOne({email,isDeleted: false,}).select("+password");
+  return this.findOne({ email }).select("+password");
 });
 
 /**
- * Compare password
+ * Instance Method
  */
-userSchema.static("isPasswordMatched",function (plainPassword: string, hashedPassword: string) {
-    return bcrypt.compare(plainPassword, hashedPassword);
+userSchema.method(
+  "isPasswordMatched",
+  async function (plainPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, this.password);
   },
 );
 

@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
   ACCOUNT_DELETED: "This account has been deleted",
   USER_BLOCKED: "User is blocked",
   FORBIDDEN: "You are forbidden to access this resource",
+  REFRESH_TOKEN_REQUIRED: "Refresh token is required"
 };
 
 export const SUCCESS_MESSAGES={
@@ -16,4 +17,5 @@ export const SUCCESS_MESSAGES={
   LOGOUT_USER: "User logged out successfully",
   PROFILE_RETRIEVED: "Profile retrieved successfully",
   PROFILE_UPDATED: "Profile updated successfully",
+  Access_TOKEN_GENERATED: "Access token generated successfully",
 }

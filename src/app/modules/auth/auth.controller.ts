@@ -36,7 +36,36 @@ const loginUser = async (req: Request, res: Response) => {
   });
 };
 
+const refreshToken = async (req: Request, res: Response) => {
+  const result = await AuthService.refreshToken(req.cookies.refreshToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: SUCCESS_MESSAGES.Access_TOKEN_GENERATED,
+    data: result,
+  });
+};
+
+// -------- Logout Controller will be customized in the future ------------
+
+const logout = async (req: Request, res: Response) => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: SUCCESS_MESSAGES.LOGOUT_USER,
+  });
+};
+
 export const AuthController = {
   registerUser,
   loginUser,
+  refreshToken,
+  logout,
 };

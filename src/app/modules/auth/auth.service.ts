@@ -3,7 +3,7 @@ import config from "../../config/env";
 import { ERROR_MESSAGES } from "../../constants/messages";
 import { USER_STATUS } from "../../constants/user_status";
 import AppError from "../../errors/AppError";
-import { createToken } from "../../utils/jwt";
+import { createToken, verifyToken } from "../../utils/jwt";
 import { User } from "../user/user.model";
 import { TLoginUser, TCreateUser, TJwtPayload } from "./auth.interface";
 import httpStatus from "http-status";
@@ -24,7 +24,7 @@ const registerUser = async (payload: TCreateUser) => {
 
 const loginUser = async (payload: TLoginUser) => {
   // Check if user exists
-  const user= await User.isUserExistsByEmail(payload.email);
+  const user = await User.isUserExistsByEmail(payload.email);
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, ERROR_MESSAGES.USER_NOT_FOUND);
@@ -58,7 +58,7 @@ const loginUser = async (payload: TLoginUser) => {
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret!,
-    config.jwt_refresh_expires_in as SignOptions["expiresIn"],
+    config.jwt_access_expires_in as SignOptions["expiresIn"],
   );
 
   // Generate Refresh Token
@@ -76,7 +76,54 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+const refreshToken = async (refreshToken: string) => {
+  // 1. Check token exists
+  if (!refreshToken) {
+    throw new AppError(httpStatus.UNAUTHORIZED, ERROR_MESSAGES.REFRESH_TOKEN_REQUIRED);
+  }
+
+  // 2. Verify Refresh Token
+  const decoded = verifyToken(refreshToken, config.jwt_refresh_secret);
+
+  // 3. Find user
+  const user = await User.findById(decoded.userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, ERROR_MESSAGES.USER_NOT_FOUND);
+  }
+
+  // 4. Deleted?
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, ERROR_MESSAGES.ACCOUNT_DELETED);
+  }
+
+  // 5. Blocked?
+  if (user.status !== USER_STATUS.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, ERROR_MESSAGES.USER_BLOCKED);
+  }
+
+  // 6. Create new payload
+  const jwtPayload: TJwtPayload = {
+    userId: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  // 7. Generate new Access Token
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in as SignOptions["expiresIn"],
+  );
+
+  // 8. Return
+  return {
+    accessToken,
+  };
+};
+
 export const AuthService = {
   registerUser,
   loginUser,
+  refreshToken,
 };

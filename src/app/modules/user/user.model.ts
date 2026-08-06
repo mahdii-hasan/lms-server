@@ -7,6 +7,7 @@ import { IUser, IUserMethods, UserModel } from "./user.interface";
 
 import { USER_ROLE } from "../../constants/user_role";
 import { USER_STATUS } from "../../constants/user_status";
+import crypto from "crypto";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
@@ -50,6 +51,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: Date,
       default: null,
     },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -85,5 +95,14 @@ userSchema.method(
     return bcrypt.compare(plainPassword, this.password);
   },
 );
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex")
+
+  this.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+}
 
 export const User = model<IUser, UserModel>("User", userSchema);

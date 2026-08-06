@@ -42,8 +42,21 @@ const changePasswordValidationSchema = z.object({
     }),
 });
 
+const forgotPasswordValidationSchema = z.object({
+  body: z.object({
+    email: z.string().email("Invalid email"),
+  }),
+});
+const resetPasswordValidationSchema = z.object({
+  body: z.object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  }),
+});
+
 export const AuthValidation = {
   registerValidationSchema,
   loginValidationSchema,
   changePasswordValidationSchema,
+  forgotPasswordValidationSchema,
+  resetPasswordValidationSchema,
 };

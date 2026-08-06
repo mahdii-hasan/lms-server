@@ -16,6 +16,10 @@ export interface IUser {
 
   isDeleted: boolean;
   passwordChangedAt?: Date;
+
+  passwordResetToken?: string;
+
+  passwordResetExpires?: Date;
 }
 
 /**
@@ -30,6 +34,6 @@ export interface IUserMethods {
  */
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
   isUserExistsByEmail(
-    email: string
+    email: string,
   ): Promise<HydratedDocument<IUser, IUserMethods> | null>;
 }

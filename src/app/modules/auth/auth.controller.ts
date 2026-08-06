@@ -64,10 +64,7 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const changePassword = async (req: Request, res: Response) => {
-  await AuthService.changePassword(
-    req.user._id,
-    req.body,
-  );
+  await AuthService.changePassword(req.user._id, req.body);
 
   sendResponse(res, {
     success: true,
@@ -77,10 +74,34 @@ const changePassword = async (req: Request, res: Response) => {
   });
 };
 
+const forgotPassword = async (req: Request, res: Response) => {
+  await AuthService.forgotPassword(req.body.email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "If this email exists, a reset link has been sent",
+    data: null,
+  });
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+    await AuthService.resetPassword(req.params.token, req.body.password)
+
+    sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Password reset successfully",
+    data: null,
+  });
+}
+
 export const AuthController = {
   registerUser,
   loginUser,
   refreshToken,
   logout,
   changePassword,
+  forgotPassword,
+  resetPassword
 };

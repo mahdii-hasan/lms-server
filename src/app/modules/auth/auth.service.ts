@@ -7,6 +7,10 @@ import { createToken, verifyToken } from "../../utils/jwt";
 import { User } from "../user/user.model";
 import { TLoginUser, TCreateUser, TJwtPayload } from "./auth.interface";
 import httpStatus from "http-status";
+import { createResetToken } from "../../utils/resetToken";
+import sendMail from "../../utils/sendMail";
+import { forgotPasswordTemplate } from "../../utils/forgotPasswordTemplate";
+import crypto from "crypto";
 
 const registerUser = async (payload: TCreateUser) => {
   // Check duplicate email
@@ -154,9 +158,51 @@ const changePassword = async (
   await user.save();
 };
 
+const forgotPassword = async (email: string) => {
+  const user = await User.findOne({
+    email,
+  });
+
+  if (!user) {
+    return;
+  }
+
+  const resetToken =  user.createPasswordResetToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  const resetURL = `${config.frontend_url}/reset-password/${resetToken}`;
+
+  // send email here------------------------------------
+   await sendMail({
+    to: user.email,
+    subject: "Password Reset Request",
+    html: forgotPasswordTemplate(resetURL, user.name)
+  })
+
+  return;
+};
+
+const resetPassword = async (token: string, newPassword: string) => {
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() }
+  })
+  if (!user) throw new AppError(httpStatus.BAD_REQUEST, "Token is invalid or has expired");
+  user.password = newPassword;
+  user.passwordChangedAt = new Date();
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+}
+
 export const AuthService = {
   registerUser,
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
+  resetPassword
 };

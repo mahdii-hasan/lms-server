@@ -12,6 +12,9 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(1),
   JWT_ACCESS_EXPIRES_IN: z.string().min(1),
   JWT_REFRESH_EXPIRES_IN: z.string().min(1),
+  FRONTEND_URL: z.string().url().min(1),
+  EMAIL_USER: z.string().email().min(1),
+  EMAIL_PASS: z.string().min(1),
 });
 
 const env = envSchema.parse(process.env);
@@ -25,6 +28,9 @@ const config = {
   jwt_refresh_secret: env.JWT_REFRESH_SECRET,
   jwt_access_expires_in: env.JWT_ACCESS_EXPIRES_IN,
   jwt_refresh_expires_in: env.JWT_REFRESH_EXPIRES_IN,
+  frontend_url: env.FRONTEND_URL,
+  email_user: env.EMAIL_USER,
+  email_pass: env.EMAIL_PASS,
 };
 
 export default config;

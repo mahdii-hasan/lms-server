@@ -9,8 +9,10 @@ const {
   registerValidationSchema,
   loginValidationSchema,
   changePasswordValidationSchema,
+  forgotPasswordValidationSchema,
+  resetPasswordValidationSchema
 } = AuthValidation;
-const { registerUser, loginUser, refreshToken, logout, changePassword } =
+const { registerUser, loginUser, refreshToken, logout, changePassword, forgotPassword, resetPassword } =
   AuthController;
 
 const router = Router();
@@ -31,5 +33,12 @@ router.post(
   validateRequest(changePasswordValidationSchema),
   changePassword,
 );
+
+router.post(
+  "/forgot-password",
+  validateRequest(forgotPasswordValidationSchema),
+  forgotPassword,
+);
+router.put("/reset-password/:token", validateRequest(resetPasswordValidationSchema), resetPassword);
 
 export const AuthRoutes = router;

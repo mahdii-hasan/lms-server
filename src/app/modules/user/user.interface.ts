@@ -15,6 +15,7 @@ export interface IUser {
   status: TUserStatus;
 
   isDeleted: boolean;
+  passwordChangedAt?: Date;
 }
 
 /**

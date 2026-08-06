@@ -79,7 +79,10 @@ const loginUser = async (payload: TLoginUser) => {
 const refreshToken = async (refreshToken: string) => {
   // 1. Check token exists
   if (!refreshToken) {
-    throw new AppError(httpStatus.UNAUTHORIZED, ERROR_MESSAGES.REFRESH_TOKEN_REQUIRED);
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      ERROR_MESSAGES.REFRESH_TOKEN_REQUIRED,
+    );
   }
 
   // 2. Verify Refresh Token
@@ -122,8 +125,38 @@ const refreshToken = async (refreshToken: string) => {
   };
 };
 
+const changePassword = async (
+  userId: string,
+  payload: {
+    oldPassword: string;
+    newPassword: string;
+  },
+) => {
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const isMatched = await user.isPasswordMatched(payload.oldPassword);
+
+  if (!isMatched) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      ERROR_MESSAGES.PASSWORD_INCORRECT,
+    );
+  }
+
+  user.password = payload.newPassword;
+
+  user.passwordChangedAt = new Date();
+
+  await user.save();
+};
+
 export const AuthService = {
   registerUser,
   loginUser,
   refreshToken,
+  changePassword,
 };

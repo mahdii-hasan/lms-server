@@ -63,9 +63,24 @@ const logout = async (req: Request, res: Response) => {
   });
 };
 
+const changePassword = async (req: Request, res: Response) => {
+  await AuthService.changePassword(
+    req.user._id,
+    req.body,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: SUCCESS_MESSAGES.PASSWORD_CHANGED,
+    data: null,
+  });
+};
+
 export const AuthController = {
   registerUser,
   loginUser,
   refreshToken,
   logout,
+  changePassword,
 };

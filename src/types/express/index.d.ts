@@ -1,10 +1,9 @@
-import { TJwtPayload } from "../../app/modules/auth/auth.interface";
-import { IUser } from "../../app/modules/user/user.interface";
+import { IAuthenticatedUser } from "./interfaces/authenticatedUser";
 
 declare global {
   namespace Express {
     interface Request {
-      user: IUser | TJwtPayload;
+      user?: IAuthenticatedUser;
     }
   }
 }

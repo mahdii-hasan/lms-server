@@ -1,15 +1,30 @@
-import { TUserRole } from "../../constants/user_role";
-import { IUser } from "../user/user.interface";
+import { z } from "zod";
+import {AuthValidation} from "./auth.validation";
+import { Types } from "mongoose";
 
-export interface TLoginUser {
+const {loginValidationSchema} = AuthValidation;
+
+export interface IRegisterPayload {
+  name: string;
   email: string;
   password: string;
 }
 
-export type TCreateUser = Pick<IUser, "name" | "email" | "password">;
+export type ILoginPayload = z.infer<typeof loginValidationSchema>["body"];
 
-export interface TJwtPayload {
-  userId: string;
-  email: string;
-  role: TUserRole;
+export interface IAuthSession {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  refreshTokenHash: string;
+  currentJti: string;
+  expiresAt: Date;
+  absoluteExpiresAt: Date;
+  revokedAt: Date | null;
+  replacedBySessionId: Types.ObjectId | null;
+  userAgent?: string;
+  ipAddress?: string;
+}
+export interface ILoginMetadata {
+  userAgent?: string;
+  ipAddress?: string;
 }

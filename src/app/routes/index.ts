@@ -1,18 +1,14 @@
 import { Router } from "express";
-import { UserRoutes } from "../modules/user/user.route";
-import { AuthRoutes } from "../modules/auth/auth.route";
+import { AuthRoutes } from "../modules/auth/auth.routes";
+import { UserRoutes } from "../modules/user/user.routes";
 
-const router = Router();
+const routes = Router();
 
-router.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: "Welcome to the LMS API"
-    })
-})
+routes.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
+routes.use("/auth", AuthRoutes);
+routes.use("/user", UserRoutes);
 
-router.use("/users", UserRoutes);
-router.use("/auth", AuthRoutes);
-
-export default router;
+export default routes;

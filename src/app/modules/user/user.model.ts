@@ -1,20 +1,18 @@
-import bcrypt from "bcryptjs";
+
 import { Schema, model } from "mongoose";
-
-import env from "../../config/env";
-
 import { IUser, IUserMethods, UserModel } from "./user.interface";
-
 import { USER_ROLE } from "../../constants/user_role";
 import { USER_STATUS } from "../../constants/user_status";
-import crypto from "crypto";
 
-const userSchema = new Schema<IUser, UserModel, IUserMethods>(
+// User Schema
+export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: {
       type: String,
       required: [true, "Name is required"],
       trim: true,
+      minlength: [3, "Name must be at least 3 characters"],
+      maxlength: [50, "Name cannot exceed 50 characters"],
     },
 
     email: {
@@ -23,11 +21,13 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true,
     },
 
     password: {
       type: String,
       required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
       select: false,
     },
 
@@ -43,66 +43,60 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       default: USER_STATUS.ACTIVE,
     },
 
+    avatar: {
+      url: {
+        type: String,
+        default: null,
+      },
+
+      publicId: {
+        type: String,
+        default: null,
+      },
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
     isDeleted: {
       type: Boolean,
       default: false,
     },
+
     passwordChangedAt: {
       type: Date,
-      default: null,
     },
+
     passwordResetToken: {
       type: String,
-      default: null,
+      select: false,
     },
 
     passwordResetExpires: {
       type: Date,
-      default: null,
+      select: false,
+    },
+
+    emailVerificationCode: {
+      type: String,
+      select: false,
+    },
+
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
     },
   },
+
   {
     timestamps: true,
     versionKey: false,
   },
 );
 
-/**
- * Hash password before saving
- */
-userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+// needed method in the user.model.method.ts file
 
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(env.bcrypt_salt_rounds),
-  );
-});
 
-/**
- * Static Method
- */
-userSchema.static("isUserExistsByEmail", function (email: string) {
-  return this.findOne({ email }).select("+password");
-});
 
-/**
- * Instance Method
- */
-userSchema.method(
-  "isPasswordMatched",
-  async function (plainPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, this.password);
-  },
-);
-
-userSchema.methods.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString("hex")
-
-  this.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-
-  return resetToken;
-}
-
-export const User = model<IUser, UserModel>("User", userSchema);

@@ -1,17 +1,23 @@
-import { Request, Response } from "express";
 import sendResponse from "../../utils/sendResponse";
+import { Request, Response } from "express";
 import httpStatus from "http-status";
-import { SUCCESS_MESSAGES } from "../../constants/messages";
+import AppError from "../../errors/AppError";
 
 const getMe = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+  }
+
   sendResponse(res, {
-    success: true,
     statusCode: httpStatus.OK,
-    message: SUCCESS_MESSAGES.PROFILE_RETRIEVED,
-    data: req.user,
+    success: true,
+    message: "User profile retrieved successfully",
+    data: user,
   });
 };
 
-export const UserControllers = {
+export const UserController = {
   getMe,
 };

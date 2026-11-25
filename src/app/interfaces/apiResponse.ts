@@ -1,4 +1,4 @@
-export type TResponse<T> = {
+export interface TApiResponse<T> {
   statusCode: number;
   success: boolean;
   message: string;
@@ -9,4 +9,4 @@ export type TResponse<T> = {
     total: number;
     totalPage: number;
   };
-};
+}

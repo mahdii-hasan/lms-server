@@ -1,12 +1,11 @@
-import { HydratedDocument, Model } from "mongoose";
-
+import { Model, Types } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import { TUserRole } from "../../constants/user_role";
 import { TUserStatus } from "../../constants/user_status";
 
-/**
- * User document fields
- */
 export interface IUser {
+  _id: Types.ObjectId;
+
   name: string;
   email: string;
   password: string;
@@ -14,26 +13,36 @@ export interface IUser {
   role: TUserRole;
   status: TUserStatus;
 
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
+
+  isVerified: boolean;
   isDeleted: boolean;
+
   passwordChangedAt?: Date;
 
   passwordResetToken?: string;
-
   passwordResetExpires?: Date;
+
+  emailVerificationCode?: string;
+  emailVerificationExpires?: Date;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-/**
- * Instance methods
- */
 export interface IUserMethods {
-  isPasswordMatched(plainPassword: string): Promise<boolean>;
+  isPasswordMatched(password: string): Promise<boolean>;
+
+  isPasswordChangedAfter(jwtIssuedAt: number): boolean;
 }
 
-/**
- * Model static methods
- */
+// Hydrated document = User fields + Mongoose document functionality + custom methods
+export type TUserDocument = HydratedDocument<IUser, IUserMethods>;
+
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
-  isUserExistsByEmail(
-    email: string,
-  ): Promise<HydratedDocument<IUser, IUserMethods> | null>;
+  isUserExistsByEmail(email: string): Promise<TUserDocument | null>;
+  isUserExistsById(id: string): Promise<TUserDocument | null>;
 }
